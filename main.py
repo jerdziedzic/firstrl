@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 import tcod
 
-# Import functions from actions.py and input_handlers.py
+# Import functions from actions.py, entity,py, and input_handlers.py
 from actions import EscapeAction, MovementAction
+from entity import Entity
 from input_handlers import EventHandler
 
 
 def main() -> None:
-    # Define variables for the screen size and player starting position
+    # Define variables for the screen size
     screen_width = 80
     screen_height = 50
-
-    player_x = int(screen_width / 2) # int ensures that this will not result in a float
-    player_y = int(screen_height / 2)
 
     # Tell TCOD which font to use (loaded from file)
     tileset= tcod.tileset.load_tilesheet(
@@ -20,6 +18,11 @@ def main() -> None:
     )
 
     event_handler = EventHandler() # Create an instance of the EventHandler class, used to receive and process events
+
+    # Use Entity class to initialize player and NPC
+    player = Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
+    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
+    entities = {npc, player} # Set that will eventually hold all entities on the map
 
     # Create the screen and pass size parameters, tileset, title, and vsync boolean
     with tcod.context.new_terminal(
@@ -32,7 +35,7 @@ def main() -> None:
         root_console = tcod.Console(screen_width, screen_height, order="F") # Creates console to draw to; F flips y,x to x,y
         # Start of main game loop
         while True:
-            root_console.print(x=player_x, y=player_y, string="@") # Tell root console to print @ at starting coordinates
+            root_console.print(x=player.x, y=player.y, string=player.char, fg=player.color) # Pass player starting coordinates, character, and color
 
             context.present(root_console)
 
@@ -49,8 +52,7 @@ def main() -> None:
 
                 # Add -1, 0, or +1 to player_x and/or player_y to move the character around
                 if isinstance(action, MovementAction):
-                    player_x += action.dx
-                    player_y += action.dy
+                    player.move(dx=action.dx, dy=action.dy) # Entity class handles movement
 
                 # If Esc is pressed, exit the program
                 elif isinstance(action, EscapeAction):
