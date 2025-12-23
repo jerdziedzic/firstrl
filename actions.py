@@ -8,7 +8,7 @@ class EscapeAction(Action):
 
 # Subclass of Action; defines both the fact that we're trying to move and what direction
 class MovementAction(Action):
-    def _init__(self, dx: int, dy: int):
+    def __init__(self, dx: int, dy: int):
         super().__init__()
 
         self.dx = dx

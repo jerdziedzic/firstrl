@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import tcod
 
+# Import functions from actions.py and input_handlers.py
 from actions import EscapeAction, MovementAction
 from input_handlers import EventHandler
 
@@ -18,7 +19,7 @@ def main() -> None:
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
-    event_handler = EventHandler()
+    event_handler = EventHandler() # Create an instance of the EventHandler class, used to receive and process events
 
     # Create the screen and pass size parameters, tileset, title, and vsync boolean
     with tcod.context.new_terminal(
@@ -35,18 +36,23 @@ def main() -> None:
 
             context.present(root_console)
 
+            root_console.clear() # Clear the console after drawing to it (to eliminate leftover drawn characters from movement)
+
             # Allows us to quit by clicking upper-right X
             for event in tcod.event.wait():
 
+                # Send an event to the event handler's dispatch method (which sends an event to its proper place)
                 action = event_handler.dispatch(event)
 
-                if action is None:
+                if action is None: # If no key is pressed or the pressed key is unrecognized, skip over the rest of the loop
                     continue
 
+                # Add -1, 0, or +1 to player_x and/or player_y to move the character around
                 if isinstance(action, MovementAction):
                     player_x += action.dx
                     player_y += action.dy
 
+                # If Esc is pressed, exit the program
                 elif isinstance(action, EscapeAction):
                     raise SystemExit()
 
