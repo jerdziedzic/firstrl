@@ -1,4 +1,7 @@
-from typing import Tuple
+import random
+from typing import Iterator, Tuple
+
+import tcod
 
 from game_map import GameMap
 import tile_types
@@ -8,7 +11,7 @@ class RectangularRoom:
         self.x1 = x
         self.y1 = y
         self.x2 = x + width
-        self.y2 = y + width
+        self.y2 = y + height
 
     @property
     def center(self) -> Tuple[int, int]: # Center acts as a read-only variable that describes x and y coordinates of a room (for later use)
@@ -23,6 +26,26 @@ class RectangularRoom:
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2) # The +1 covers cases where two rooms are created next to each other (wall needed)
     
 
+def tunnel_between(
+        start: Tuple[int, int], end: Tuple[int, int]
+) -> Iterator[Tuple[int, int]]:
+    """Return an L-shaped tunnel between these two points."""
+    x1, y1 = start
+    x2, y2 = end
+    if random.random() < 0.5:  # 50% chance
+        # Move horizontally, then vertically
+        corner_x, corner_y = x2, y1
+    else:
+        # Move vertically, then horizontally
+        corner_x, corner_y = x1, y2
+
+    # Generate the coordinates for this tunnel
+    for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist(): # A Bresenham Line is a pixel-style approximation of a line between two points; tolist converts to a list
+        yield x, y # Yield returns the values, but keeps the state (instead of exiting the function right away)
+    for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
+
+
 def generate_dungeon(map_width, map_height) -> GameMap:
     dungeon = GameMap(map_width, map_height)
 
@@ -31,5 +54,8 @@ def generate_dungeon(map_width, map_height) -> GameMap:
 
     dungeon.tiles[room_1.inner] = tile_types.floor
     dungeon.tiles[room_2.inner] = tile_types.floor
+
+    for x, y in tunnel_between(room_2.center, room_1.center):
+        dungeon.tiles[x, y] = tile_types.floor
 
     return dungeon
