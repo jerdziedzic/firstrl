@@ -32,6 +32,12 @@ class Action:
 class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
+    
+
+class WaitAction(Action):
+    def perform(self) -> None:
+        pass # This pass is intentional; this is "I will do nothing this turn"
+
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Entity, dx: int, dy: int):
