@@ -15,6 +15,10 @@ class Engine:
         self.player = player # Player entity; we have a separate reference outside of entities for ease of access (since we'll work with it a lot)
         self.update_fov()
 
+    def handle_enemy_turns(self) -> None:
+        for entity in self.game_map.entities - {self.player}: # The minus means "any entity EXCEPT the player"
+            print(f'The {entity.name} wonders when it will get to take a real turn.')
+
     # Basically same event handler we originally added to main.py
     def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:
@@ -24,7 +28,7 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
-
+            self.handle_enemy_turns()
             self.update_fov() # Update the FOV before the player's next action
 
     def update_fov(self) -> None:
