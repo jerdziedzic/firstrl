@@ -53,6 +53,14 @@ class EventHandler(tcod.event.EventDispatch[Action]): # Import the Action class 
         self.engine = engine
 
     def handle_events(self) -> None:
+        raise NotImplementedError()
+    
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+        raise SystemExit()
+
+
+class MainGameEventHandler(EventHandler):
+    def handle_events(self) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
@@ -63,9 +71,6 @@ class EventHandler(tcod.event.EventDispatch[Action]): # Import the Action class 
 
             self.engine.handle_enemy_turns()
             self.engine.update_fov() # Update the FOV before the player's next action
-
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]: # Called when we click upper-right X
-        raise SystemExit()
     
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]: # Receive a keypress and return either an Action subclass or None
         action: Optional[Action] = None # action is a variable that holds whatever subclass we assign it to (or None)
@@ -82,6 +87,28 @@ class EventHandler(tcod.event.EventDispatch[Action]): # Import the Action class 
             action = WaitAction(player)
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(player)
+
+        # No valid key was pressed
+        return action
+    
+
+class GameOverEventHandler(EventHandler):
+    def handle_events(self) -> None:
+        for event in tcod.event.wait():
+            action = self.dispatch(event)
+
+            if action is None:
+                continue
+
+            action.perform()
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        action: Optional[Action] = None
+
+        key = event.sym
+
+        if key == tcod.event.K_ESCAPE:
+            action = EscapeAction(self.engine.player)
 
         # No valid key was pressed
         return action
