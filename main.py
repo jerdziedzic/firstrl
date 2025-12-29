@@ -61,9 +61,11 @@ def main() -> None:
         root_console = tcod.Console(screen_width, screen_height, order="F") # Creates console to draw to; F flips y,x to x,y
         # Start of main game loop
         while True:
-            engine.render(console=root_console, context=context)
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
  
-            engine.event_handler.handle_events()
+            engine.event_handler.handle_events(context)
 
             
 # Only run the main function when we explicitly run the script
