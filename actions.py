@@ -77,12 +77,6 @@ class ItemAction(Action):
         self.item.consumable.activate(self)
 
 
-# Subclass of Action; defines what happens when we press Esc
-class EscapeAction(Action):
-    def perform(self) -> None:
-        raise SystemExit()
-
-
 class DropItem(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.drop(self.item)
