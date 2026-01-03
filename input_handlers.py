@@ -71,7 +71,7 @@ MainGameEventHandler will become the active handler.
 """
 
 class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
-    def handle_event(self, event: tcod.event.Event) -> BaseEventHandler:
+    def handle_events(self, event: tcod.event.Event) -> BaseEventHandler:
         """Handle an event and return the next active event handler."""
         state = self.dispatch(event)
         if isinstance(state, BaseEventHandler):
