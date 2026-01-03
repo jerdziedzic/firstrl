@@ -3,18 +3,21 @@ import traceback
 
 import tcod
 
-# Import functions from engine.py, entity,py, and input_handlers.py
 import color
 import exceptions
 import input_handlers
 import setup_game
 
+def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
+    """If the current event handler has an active Engine then save it."""
+    if isinstance(handler, input_handlers.EventHandler):
+        handler.engine.save_as(filename)
+        print("Game saved.")
 
 def main() -> None:
     screen_width = 80
     screen_height = 50
 
-    # Tell TCOD which font to use (loaded from file)
     tileset= tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
@@ -51,10 +54,10 @@ def main() -> None:
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit: # Save and quit
-            # TODO: Add the save function here
+            save_game(handler, "savegame.sav")
             raise
         except BaseException: # Save on any other unexpected exceptions
-            # TODO: Add the save function here
+            save_game(handler, "savegame.sav")
             raise
             
 # Only run the main function when we explicitly run the script
