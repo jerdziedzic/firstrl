@@ -164,9 +164,15 @@ class MainGameEventHandler(EventHandler):
         action: Optional[Action] = None # action is a variable that holds whatever subclass we assign it to (or None)
 
         key = event.sym # key variable holds the actual keypress (no modifiers like Shift or Alt)
+        modifier = event.mod
 
         player = self.engine.player
 
+        # If player presses > (combination of SHIFT + .), take the stairs
+        if key == tcod.event.K_PERIOD and modifier & (
+            tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
+        ):
+            return actions.TakeStairsAction(player)
         # Execute actions based on keypress for movement (defined earlier), wait (defined earlier), and Esc
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
